@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poppy - Your Midnight Cravings Sorted</title>
+    <link rel="icon" type="image/jpeg" href="./images/favicon.jpg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            purple: '#2E00A6', 
+                            dark: '#08001A', // Very dark purple/black for sections
+                            lime: '#CDFF00',
+                            magenta: '#FF00FF',
+                            yellow: '#FAFF00',
+                            white: '#FFFFFF',
+                            textGray: '#D1C4E9',
+                            cardYellow: '#FFDE59',
+                            cardPink: '#FF3399',
+                        }
+                    },
+                    animation: {
+                        'swing': 'swing 6s ease-in-out infinite',
+                        'vibrate': 'vibrate 0.3s linear infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'marquee': 'marquee 25s linear infinite',
+                    },
+                    keyframes: {
+                        swing: {
+                            '0%, 100%': { transform: 'rotate(-5deg) translateY(0)' },
+                            '50%': { transform: 'rotate(5deg) translateY(-10px)' },
+                        },
+                        vibrate: {
+                            '0%': { transform: 'translate(0)' },
+                            '20%': { transform: 'translate(-2px, 2px)' },
+                            '40%': { transform: 'translate(-2px, -2px)' },
+                            '60%': { transform: 'translate(2px, 2px)' },
+                            '80%': { transform: 'translate(2px, -2px)' },
+                            '100%': { transform: 'translate(0)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        marquee: {
+                            '0%': { transform: 'translateX(0%)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        },
+                        swingPinned: {
+                            '0%, 100%': { transform: 'rotate(12deg)' },
+                            '50%': { transform: 'rotate(-5deg)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #2E00A6;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        /* Prevent body scroll when cart is open */
+        body.no-scroll {
+            overflow: hidden;
+        }
+
+        /* Nav styling */
+        .nav-link {
+            position: relative;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover { color: #CDFF00; }
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #CDFF00;
+        }
+
+        /* Currency toggle */
+        .currency-toggle {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .currency-btn {
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        .currency-btn.active {
+            background-color: #CDFF00;
+            color: black;
+        }
+
+        /* Hero Card styling - removed background to make it transparent outline */
+        .product-card {
+            border: 2px solid #CDFF00;
+            border-radius: 24px;
+            position: relative;
+            background: transparent; 
+        }
+
+        .swing-container { transform-origin: top center; }
+
+        /* Shop button container */
+        .shop-btn-container {
+            position: relative;
+            display: inline-block;
+            margin-top: 2rem;
+        }
+        .shop-btn-container::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            background: #FF00FF;
+            border-radius: 16px;
+            z-index: -1;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+        }
+        .shop-btn-wrapper {
+            background: black;
+            border-radius: 12px;
+            padding: 8px;
+            border: 2px solid #CDFF00;
+        }
+
+        /* Marquee specific styles */
+        .marquee-container {
+            display: flex;
+            width: 200%; /* Double width to accommodate duplication */
+        }
+
+        /* 3D Flip Card Styles */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        
+        /* Handles hover on desktop and toggle class for mobile */
+        .flip-card-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .flip-card-container:hover .flip-card-inner {
+                transform: rotateY(180deg);
+            }
+        }
+        .flip-card-container.is-flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        /* Swing Pinned Animation */
+        .animate-swing-pinned {
+            transform-origin: bottom right; 
+            animation: swingPinned 3.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+        }
+
+        /* Utility for the dashed placeholder areas */
+        .dashed-placeholder {
+            border: 2px dashed rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #08001A; }
+        ::-webkit-scrollbar-thumb { background: #CDFF00; border-radius: 5px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative font-sans">
+    
+    <header id="main-nav" class="w-full py-4 px-6 md:px-12 flex justify-between items-center z-50 fixed top-0 left-0 right-0 transition-transform duration-300 bg-brand-purple border-b border-white/10">
+        <div class="flex items-center gap-12">
+            <!-- POPPY LOGO IMAGE -->
+            <a href="./index.html"><img src="./images/poppy.jpg" alt="Poppy Logo" class="w-24 h-auto object-contain cursor-pointer"></a>
+            
+            <nav class="hidden md:flex gap-8">
+                <a href="./index.html" class="nav-link text-white text-sm active">Home</a>
+                <a href="./poppy_shop.html" class="nav-link text-white text-sm">Shop</a>
+                <a href="./poppy_story.html" class="nav-link text-white text-sm">Story</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <div class="currency-toggle hidden sm:flex">
+                <button class="currency-btn active">PKR</button>
+            </div>
+            
+            <!-- CART ICON IMAGE -->
+            <div class="relative cursor-pointer hover:scale-110 transition-transform active:scale-95" onclick="toggleCart()">
+                <img src="./images/shopping bag icon removed background.png" alt="Cart Icon" class="w-10 h-10 rounded-full border-2 border-transparent">
+                <span id="cart-count" class="absolute -top-1 -right-1 bg-black text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-brand-purple shadow-sm">0</span>
+            </div>
+            
+            <!-- Hamburger Menu Button -->
+            <button class="md:hidden text-brand-lime hover:text-white transition-colors ml-2" onclick="toggleMobileMenu()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="hidden fixed inset-0 z-[60] bg-black/95 flex flex-col items-center justify-center transition-all duration-300 opacity-0 translate-y-[-100%]">
+        <button class="absolute top-6 right-6 text-brand-lime hover:text-white transition-colors" onclick="toggleMobileMenu()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <nav class="flex flex-col items-center gap-8">
+            <a href="./index.html" class="nav-link text-white text-4xl font-black uppercase tracking-widest hover:text-brand-lime" onclick="toggleMobileMenu()">Home</a>
+            <a href="./poppy_shop.html" class="nav-link text-white text-4xl font-black uppercase tracking-widest hover:text-brand-lime" onclick="toggleMobileMenu()">Shop</a>
+            <a href="./poppy_story.html" class="nav-link text-white text-4xl font-black uppercase tracking-widest hover:text-brand-lime" onclick="toggleMobileMenu()">Story</a>
+        </nav>
+    </div>
+
+    <section class="flex flex-col lg:flex-row px-4 md:px-12 pb-16 pt-28 relative z-10 max-w-[1600px] mx-auto w-full gap-12 items-center bg-brand-purple">
+        
+        <!-- Left Column -->
+        <div class="w-full lg:w-1/2 flex flex-col items-start relative mt-4">
+            
+            <!-- CRAVINGS SORTED IMAGE -->
+            <img src="./images/Cravings Sorted Image.jpg" alt="Cravings Sorted Sticker" class="absolute -top-12 lg:-top-16 right-0 lg:-right-4 w-[280px] h-auto z-20 animate-swing-pinned">
+
+            <!-- MAIN POPPY 3D TEXT IMAGE -->
+            <img src="./images/poppy.jpg" alt="Main POPPY 3D Text" class="w-full max-w-2xl h-auto mb-8 relative z-10">
+
+            <p class="text-white text-lg md:text-[1.1rem] max-w-[28rem] font-medium leading-snug mb-10 opacity-90">
+                Crunchy pillows, real cocoa, no cap. Made for the 2 AM scroller
+                in Karachi & Mumbai. COD? King. Prepaid? 10% off. Free shipping
+                over PKR 3,500.
+            </p>
+
+            <!-- SHOP THE CHAOS BUTTON IMAGE -->
+            <div class="shop-btn-container group cursor-pointer" onclick="addToCart('hero', 'Hero Pouch • 380g', 1200, 'standard', 'HERO')">
+                <div class="absolute -top-3 -right-2 bg-brand-magenta text-white text-[0.6rem] font-black px-2 py-1 rounded-full uppercase tracking-widest z-20 animate-vibrate border border-white shadow-[2px_2px_0_0_#000]">
+                    POPPY HOUR
+                </div>
+                <div class="shop-btn-wrapper transition-all duration-300 transform group-hover:scale-105 active:scale-95 shadow-[4px_4px_0_0_#000]">
+                     <img src="./images/SHOP THE CHAOS.jpg" alt="Shop The Chaos" class="w-64 h-auto rounded-lg">
+                </div>
+                <p class="text-center text-xs text-brand-lime mt-3 font-bold tracking-widest group-hover:animate-pulse">
+                    <span class="inline-block transform -rotate-45 mr-1">↑</span> TAP → CHAOS SORTED
+                </p>
+            </div>
+
+            <!-- Stats -->
+            <div class="text-[#D1C4E9] text-sm flex items-center gap-3 mt-10">
+                <div class="flex items-center -space-x-2">
+                    <img src="./images/p1.jpeg" class="w-6 h-6 rounded-full border-2 border-brand-purple">
+                    <img src="./images/p2.jpeg" class="w-6 h-6 rounded-full border-2 border-brand-purple">
+                    <img src="./images/p3.jpeg" class="w-6 h-6 rounded-full border-2 border-brand-purple">
+                    <img src="./images/p4.jpeg" class="w-6 h-6 rounded-full border-2 border-brand-purple">
+                </div>
+                <p><span class="font-bold text-white">4.9/5</span> from 2,847 midnight snackers</p>
+            </div>
+        </div>
+
+        <!-- Right Column (Swinging Card) -->
+        <div class="w-full lg:w-1/2 flex justify-center lg:justify-end mt-16 lg:mt-0 relative h-[550px]">
+            <div class="swing-container animate-swing relative mt-12 flex justify-center w-full lg:absolute lg:top-0 lg:right-10 lg:mt-0 lg:justify-end max-w-[420px]">
+                <div class="product-card w-full h-[540px] p-8 flex flex-col relative border-2 border-brand-lime rounded-[24px]">
+                    
+                    <!-- Inner Dashed Border to match original -->
+                    <div class="absolute inset-[10px] border border-dashed border-white/30 rounded-[14px] pointer-events-none z-0"></div>
+
+                    <div class="absolute -top-6 -right-6 bg-brand-lime text-black rounded-full w-[90px] h-[90px] flex flex-col items-center justify-center font-black leading-none transform rotate-[15deg] z-20 shadow-[2px_2px_0_0_#000] border border-black">
+                        <span class="text-[0.6rem] uppercase tracking-wide">ONLY</span>
+                        <span class="text-2xl mt-0.5 mb-0.5">1200</span>
+                        <span class="text-[0.6rem] uppercase tracking-wide">PKR</span>
+                    </div>
+
+                    <div class="flex justify-center w-full mb-8 relative z-10">
+                        <div class="bg-brand-lime text-black text-[0.65rem] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest border border-black">
+                            Hero Pouch - 380g Render
+                        </div>
+                    </div>
+                    
+                    <!-- HERO PRODUCT IMAGE -->
+                    <div class="flex-grow w-full relative flex flex-col items-center justify-center mb-6 z-10 text-center">
+                        <h3 class="text-brand-lime font-black text-2xl uppercase leading-tight mb-2 max-w-[250px]">
+                            CHOCO FLAVOUR IS HERE
+                        </h3>
+                        <p class="text-white text-sm tracking-widest uppercase mb-8">— 380g POUCH —</p>
+                        
+                        <div class="text-white/10 font-black text-4xl md:text-5xl lg:text-6xl uppercase tracking-tighter w-full text-center relative flex items-center justify-center h-[190px]">
+    <img 
+        src="./images/hero.jpeg" 
+        alt="Hero Product Render" 
+        class="absolute inset-0 w-full h-full object-contain z-100 mix-blend-screen opacity-100 scale-125"
+    >
+    <span class="absolute z-10 text-xl font-bold tracking-widest">3D POUCH PLACEHOLDER</span>
+</div>
+                    </div>
+
+                    <!-- Bottom Text Structure -->
+                    <div class="w-full flex flex-col mt-auto relative z-10">
+                        <!-- Overlapping REAL COCOA tag -->
+                        <div class="absolute -bottom-12 -left-14 bg-white text-black px-4 py-2 rounded-xl flex flex-col justify-center items-start shadow-[4px_4px_0_0_#000] border-2 border-black z-30 transform -rotate-3">
+                            <span class="text-[0.6rem] font-extrabold uppercase tracking-widest mb-0.5">REAL COCOA</span>
+                            <span class="text-3xl font-black leading-none">100%</span>
+                        </div>
+
+                        <div class="flex flex-col items-center text-center w-full pb-2">
+                            <p class="text-[0.7rem] text-white font-bold uppercase tracking-widest mb-1.5">
+                                CRUNCHY CEREAL • PUFFED RICE &
+                            </p>
+                            <p class="text-[0.55rem] text-[#D1C4E9] uppercase tracking-widest mb-3">
+                                MACAS • GLUTEN FREE • 120 CALORIES PER SERVING
+                            </p>
+                            <div class="flex justify-between w-full px-4 items-end border-t border-dashed border-white/20 pt-3">
+                                <p class="text-[0.5rem] text-white uppercase font-bold tracking-widest">
+                                    WHOLESOME GOODNESS
+                                </p>
+                                <p class="text-[0.5rem] text-white uppercase font-bold tracking-widest">
+                                    NET WT 380g (12.7 OZ)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Infinite Marquee Section -->
+    <div class="w-full bg-black border-y-2 border-brand-lime overflow-hidden py-3 relative z-20 flex items-center">
+        <div class="marquee-container animate-marquee flex items-center">
+            <!-- First Set -->
+            <div class="flex items-center whitespace-nowrap text-brand-lime font-black text-sm tracking-widest uppercase w-1/2 justify-around">
+                <span>REAL COCOA</span>
+                <span class="text-brand-magenta">⚡</span>
+                <span>NO ARTIFICIAL FLAVORS</span>
+                <span class="text-brand-magenta">⚡</span>
+                <span>100% VEGETARIAN</span>
+                <span class="text-brand-magenta">⚡</span>
+                <span>GLUTEN FREE</span>
+                <span class="text-brand-magenta">⚡</span>
+                <span>5g WHOLE GRAINS</span>
+                <span class="text-brand-magenta">⚡</span>
+            </div>
+            <!-- Duplicate Set for seamless loop -->
+            <div class="flex items-center whitespace-nowrap text-brand-lime font-black text-sm tracking-widest uppercase w-1/2 justify-around">
+                <span>REAL COCOA</span>
+                <span class="text-brand-magenta">⚡</span>
+                <span>NO ARTIFICIAL FLAVORS</span>
+                <span class="text-brand-magenta">⚡</span>
+                <span>100% VEGETARIAN</span>
+                <span class="text-brand-magenta">⚡</span>
+                <span>GLUTEN FREE</span>
+                <span class="text-brand-magenta">⚡</span>
+                <span>5g WHOLE GRAINS</span>
+                <span class="text-brand-magenta">⚡</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- The Lineup Section -->
+    <section class="bg-brand-dark w-full py-16 px-4 md:px-12 border-t border-white/5">
+        <div class="max-w-[1600px] mx-auto w-full">
+            
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
+                <h2 class="text-4xl md:text-[5rem] font-black uppercase tracking-tighter text-white leading-[0.85]">
+                    THE LINEUP<br>
+                    <span class="text-brand-lime">— 120g SOLO POUCHES</span>
+                </h2>
+                <p class="text-gray-400 text-[0.65rem] font-bold uppercase tracking-[0.2em] mb-2">
+                    HOVER TO FLIP * TAP ON MOBILE
+                </p>
+            </div>
+
+            <!-- Grid of Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Card 1: Honey Crunch (Yellow) -->
+                <div class="flip-card-container perspective-1000 h-[450px] w-full cursor-pointer">
+                    <div class="flip-card-inner relative w-full h-full transform-style-3d">
+                        <!-- Front Face -->
+                        <div class="absolute inset-0 backface-hidden bg-brand-cardYellow rounded-[2rem] p-5 flex flex-col shadow-lg border-4 border-transparent">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="bg-black text-white text-[0.6rem] font-bold px-3 py-1.5 rounded-full uppercase">✹ SUNRISE EDITION</span>
+                                <span class="bg-white text-black text-[0.65rem] font-black px-3 py-1.5 rounded-full border border-black shadow-[2px_2px_0_0_#000]">PKR 1,200</span>
+                            </div>
+                            <!-- POUCH 1 IMAGE -->
+                            <div class="flex-grow rounded-2xl mb-4 overflow-hidden flex items-center justify-center">
+                                <img src="./images/honey bg remove.png" alt="Honey Pouch"  class="w-full h-full object-contain p-0 scale-150 hover:scale-125 transition-transform duration-500">
+                            </div>
+                            <div class="mt-auto text-black">
+                                <h3 class="text-2xl font-black uppercase leading-none mb-1">HONEY CRUNCH PILLOWS</h3>
+                                <p class="text-[0.7rem] font-bold opacity-80 uppercase tracking-widest">Tap to read back panel →</p>
+                            </div>
+                        </div>
+                        <!-- Back Face -->
+                        <div class="absolute inset-0 backface-hidden rotate-y-180 bg-black rounded-[2rem] p-6 border-2 border-brand-cardYellow flex flex-col text-left shadow-[4px_4px_0_0_#FFDE59]">
+                            <span class="text-brand-cardYellow text-[0.65rem] font-black uppercase tracking-widest mb-4">BACK PANEL • NO CAP</span>
+                            <h3 class="text-white text-3xl font-black uppercase mb-4 leading-none">HONEY CRUNCH</h3>
+                            <p class="text-gray-300 text-[0.85rem] font-medium mb-auto leading-relaxed">
+                                Golden honey glazed perfection. Real hive nectar, sweet crunch, turns your milk into liquid gold. No artificial sweeteners — fr fr.
+                            </p>
+                            <div class="flex gap-2 mb-6">
+                                <span class="bg-brand-cardYellow text-black text-[0.6rem] font-black px-3 py-1.5 rounded-full uppercase">6g WHOLE GRAINS</span>
+                                <span class="bg-white text-black text-[0.6rem] font-black px-3 py-1.5 rounded-full uppercase">VEG</span>
+                            </div>
+                            <button class="w-full bg-white text-black font-black uppercase py-4 rounded-full hover:bg-gray-200 transition-all flex justify-center items-center hover:scale-[1.02] active:scale-[0.98]" onclick="event.stopPropagation(); addToCart('honey', 'Honey Crunch • 120g', 1200, 'standard', 'HONEY');">
+                                ADD • PKR 1,200
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Berry Blast (Pink) -->
+                <div class="flip-card-container perspective-1000 h-[450px] w-full cursor-pointer">
+                    <div class="flip-card-inner relative w-full h-full transform-style-3d">
+                        <!-- Front Face -->
+                        <div class="absolute inset-0 backface-hidden bg-brand-cardPink rounded-[2rem] p-5 flex flex-col shadow-lg border-4 border-transparent">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="bg-black text-white text-[0.6rem] font-bold px-3 py-1.5 rounded-full uppercase">✹ BLAST MODE</span>
+                                <span class="bg-white text-black text-[0.65rem] font-black px-3 py-1.5 rounded-full border border-black shadow-[2px_2px_0_0_#000]">PKR 1,200</span>
+                            </div>
+                            <!-- POUCH 2 IMAGE -->
+                            <div class="flex-grow rounded-2xl mb-4 overflow-hidden flex items-center justify-center">
+                                <img src="./images/berry bg remove.png" alt="Berry Pouch" class="w-full h-full object-contain p-0 scale-150 hover:scale-125 transition-transform duration-500">
+                            </div>
+                            <div class="mt-auto text-white">
+                                <h3 class="text-2xl font-black uppercase leading-none mb-1 text-white shadow-black drop-shadow-md">BERRY BLAST</h3>
+                                <p class="text-[0.7rem] font-bold text-white/90 uppercase tracking-widest">Tap to read back panel →</p>
+                            </div>
+                        </div>
+                        <!-- Back Face -->
+                        <div class="absolute inset-0 backface-hidden rotate-y-180 bg-black rounded-[2rem] p-6 border-2 border-brand-cardPink flex flex-col text-left shadow-[4px_4px_0_0_#FF3399]">
+                            <span class="text-brand-cardPink text-[0.65rem] font-black uppercase tracking-widest mb-4">BACK PANEL • NO CAP</span>
+                            <h3 class="text-white text-3xl font-black uppercase mb-4 leading-none">BERRY BLAST</h3>
+                            <p class="text-gray-300 text-[0.85rem] font-medium mb-auto leading-relaxed">
+                                Bubblegum pink chaos. Real freeze-dried berries, tart zing, turns your milk into a Gen-Z potion. No artificial — fr fr.
+                            </p>
+                            <div class="flex gap-2 mb-6">
+                                <span class="bg-brand-cardPink text-black text-[0.6rem] font-black px-3 py-1.5 rounded-full uppercase">6g WHOLE GRAINS</span>
+                                <span class="bg-white text-black text-[0.6rem] font-black px-3 py-1.5 rounded-full uppercase">VEG</span>
+                            </div>
+                            <button class="w-full bg-white text-black font-black uppercase py-4 rounded-full hover:bg-gray-200 transition-all flex justify-center items-center hover:scale-[1.02] active:scale-[0.98]" onclick="event.stopPropagation(); addToCart('berry', 'Berry Blast • 120g', 1200, 'standard', 'BERRY');">
+                                ADD • PKR 1,200
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Choco Chaos (Blue) -->
+                <div class="flip-card-container perspective-1000 h-[450px] w-full cursor-pointer">
+                    <div class="flip-card-inner relative w-full h-full transform-style-3d">
+                        <!-- Front Face -->
+                        <div class="absolute inset-0 backface-hidden bg-brand-purple rounded-[2rem] p-5 flex flex-col shadow-lg border-4 border-[#4A00E0]">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="bg-black text-brand-lime text-[0.6rem] font-bold px-3 py-1.5 rounded-full uppercase border border-brand-lime">✹ MIDNIGHT EDITION</span>
+                                <span class="bg-white text-black text-[0.65rem] font-black px-3 py-1.5 rounded-full border border-black shadow-[2px_2px_0_0_#000]">PKR 1,200</span>
+                            </div>
+                            <!-- POUCH 3 IMAGE -->
+                            <div class="flex-grow rounded-2xl mb-4 overflow-hidden flex items-center justify-center">
+                                <img src="./images/choco bg remove.png" alt="Choco Pouch"  class="w-full h-full object-contain p-0 scale-150 hover:scale-125 transition-transform duration-500">
+                            </div>
+                            <div class="mt-auto text-brand-lime">
+                                <h3 class="text-2xl font-black uppercase leading-none mb-1">CHOCO CHAOS</h3>
+                                <p class="text-[0.7rem] font-bold text-white/80 uppercase tracking-widest">Tap to read back panel →</p>
+                            </div>
+                        </div>
+                        <!-- Back Face -->
+                        <div class="absolute inset-0 backface-hidden rotate-y-180 bg-black rounded-[2rem] p-6 border-2 border-brand-lime flex flex-col text-left shadow-[4px_4px_0_0_#CDFF00]">
+                            <span class="text-brand-lime text-[0.65rem] font-black uppercase tracking-widest mb-4">BACK PANEL • NO CAP</span>
+                            <h3 class="text-white text-3xl font-black uppercase mb-4 leading-none">CHOCO CHAOS</h3>
+                            <p class="text-gray-300 text-[0.85rem] font-medium mb-auto leading-relaxed">
+                                Double Dutch cocoa power. Rich, intense, and made for those serious midnight cravings. Peak chocolate vibes.
+                            </p>
+                            <div class="flex gap-2 mb-6">
+                                <span class="bg-brand-lime text-black text-[0.6rem] font-black px-3 py-1.5 rounded-full uppercase">6g WHOLE GRAINS</span>
+                                <span class="bg-white text-black text-[0.6rem] font-black px-3 py-1.5 rounded-full uppercase">VEG</span>
+                            </div>
+                            <button class="w-full bg-white text-black font-black uppercase py-4 rounded-full hover:bg-gray-200 transition-all flex justify-center items-center hover:scale-[1.02] active:scale-[0.98]" onclick="event.stopPropagation(); addToCart('choco', 'Choco Chaos • 120g', 1200, 'standard', 'CHOCO');">
+                                ADD • PKR 1,200
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Upsell Banner Section -->
+    <section class="bg-brand-lime w-full py-16 px-4 md:px-12 border-t-4 border-black text-black overflow-hidden">
+        <div class="max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
+            
+            <!-- Text Content -->
+            <div class="w-full lg:w-[55%] flex flex-col items-start">
+                <div class="bg-black text-brand-yellow text-[0.65rem] font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6">
+                    THE UPSELL • MIDNIGHT MUNCHIES VARIETY PACK
+                </div>
+                
+                <h2 class="text-4xl md:text-7xl font-black uppercase leading-[0.9] mb-6 tracking-tight">
+                    ALL 3 FLAVORS<br>
+                    + HOLO STICKER<br>
+                    PACK 
+                </h2>
+                
+                <p class="text-lg font-bold mb-8 max-w-xl leading-snug">
+                    Just like That, we bundle: 3 pouches + exclusive holographic die-cut sticker pack. Gift this to a midnight snacker — they'll get it.
+                </p>
+                
+                <!-- Pricing & Payment Badges -->
+                <div class="flex flex-wrap items-center gap-3 mb-8">
+                    <div class="bg-black text-white px-5 py-2 rounded-full font-black text-lg shadow-[3px_3px_0_0_#FF00FF]">
+                        PKR 3,000 <span class="line-through text-gray-400 text-sm ml-2 font-semibold">PKR 3,600</span>
+                    </div>
+                    <div class="bg-brand-magenta text-white px-4 py-2.5 rounded-full font-black text-[0.7rem] uppercase tracking-wider border-2 border-black">
+                        10% OFF PREPAID • SADA PAY • JAZZCASH • UPI
+                    </div>
+                </div>
+                
+                <!-- CTA Buttons -->
+                <div class="flex flex-wrap gap-4 mt-2">
+                    <button class="bg-black text-brand-lime font-black uppercase tracking-widest px-8 py-4 rounded-full border-2 border-transparent hover:scale-105 active:scale-95 transition-all shadow-[4px_4px_0_0_rgba(0,0,0,0.3)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.5)]" onclick="addToCart('variety', 'Variety Pack • 3 Flavors', 3000, 'bundle', 'VARIE')">
+                        GRAB THE BUNDLE
+                    </button>
+                    <button class="bg-brand-yellow text-black font-black uppercase tracking-widest px-8 py-4 rounded-full border-2 border-black shadow-[4px_4px_0_0_#000] hover:scale-105 active:scale-95 transition-all" onclick="addToCart('gift', 'Variety Pack • Gift', 4000, 'gift', '🎁')">
+                        GIFT THIS 🎁
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bundle Image Wrapper -->
+            <div class="w-full lg:w-[45%] flex justify-center lg:justify-end relative">
+                <div class="bg-brand-purple w-full max-w-lg aspect-square rounded-[2rem] border-2 border-black p-6 relative flex flex-col items-center justify-center transform lg:rotate-2 transition-transform hover:rotate-0 duration-300 shadow-[8px_8px_0_0_#000]">
+                    
+                    <!-- Inner Dashed -->
+                    <div class="absolute inset-4 border-2 border-dashed border-white/20 rounded-[1rem] pointer-events-none"></div>
+
+                    <div class="absolute top-8 right-8 bg-brand-yellow text-black text-[0.65rem] font-black px-4 py-2 rounded-full uppercase border-2 border-black rotate-[15deg] shadow-[2px_2px_0_0_#000] z-20">
+                        POPPY HOUR
+                    </div>
+
+                    <!-- BUNDLE BOX IMAGE -->
+                    <div class="w-full h-full flex flex-col items-center justify-center relative z-10">
+                        <span class="text-white font-bold text-sm tracking-widest uppercase mb-4 z-20 text-center"></span>
+                        <img src="./images/poppy_variety_pack_box.jpg" alt="Bundle Box Render" class="w-[150%] h-[150%] object-contain opacity-110 mix-blend-screen absolute inset-0 m-auto">
+                    </div>
+                    
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Info Banners Container -->
+    <div class="w-full flex flex-col">
+        <!-- COD Banner -->
+        <div class="bg-[#0A100D] w-full py-4 px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-brand-yellow text-black font-black text-[0.65rem] px-4 py-2 rounded-full uppercase tracking-widest border border-black shadow-[2px_2px_0_0_#000]">
+                    COD IS KING 👑 — CASH ON DELIVERY Available
+                </div>
+                <p class="text-gray-400 text-[0.65rem] uppercase font-bold hidden lg:block tracking-widest ml-4">
+                    High volume? We push prepaid — <span class="text-brand-lime">10% OFF</span> on all prepaid orders. Seamless SadaPay | JazzCash | EasyPaisa | Nayapay
+                </p>
+            </div>
+            <div class="flex gap-2 item-center">
+                <span class="bg-white text-black text-[0.6rem] font-black px-4 py-5.9 rounded-full uppercase tracking-wider flex items-center justify-center"> SADAPAY</span>
+                <span class="bg-white text-black text-[0.6rem] font-black px-4 py-1.5 rounded-full uppercase tracking-wider flex items-center justify-center">JAZZCASH</span>
+                <span class="bg-white text-black text-[0.6rem] font-black px-4 py-1.5 rounded-full uppercase tracking-wider flex items-center justify-center">Easypaisa</span>
+                <span class="bg-brand-lime text-black text-[0.6rem] font-black px-4 py-1.5 rounded-full border border-black uppercase tracking-wider">PREPAID -10%</span>
+            </div>
+        </div>
+
+        <!-- Free Shipping Progress -->
+        <div class="bg-[#1A0066] w-full py-4 px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-black">
+            <div class="flex items-center gap-4 w-full md:w-1/2">
+                <div class="bg-brand-yellow text-black w-7 h-7 rounded-full flex items-center justify-center font-black text-sm shrink-0 shadow-[2px_2px_0_0_#000]">!</div>
+                <div class="flex-grow">
+                    <p class="text-white text-xs font-bold mb-2 tracking-wide">You are just <span class="text-brand-yellow">PKR 2,300</span> away from FREE SHIPPING!</p>
+                    <div class="w-full bg-black/50 h-2 rounded-full overflow-hidden">
+                        <div class="bg-brand-yellow h-full w-[35%]"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-[0.6rem] text-[#D1C4E9] uppercase tracking-[0.2em] font-bold hidden md:block">
+                ↳ CLICK CHECKOUT > NAME > PHONE > ADDRESS > PAYMENT > BOOM
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-brand-dark w-full pt-16 pb-6 px-6 md:px-12 text-white border-t-2 border-white/5">
+        <div class="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+            
+            <!-- Brand Col -->
+            <div class="flex flex-col items-start">
+                <!-- FOOTER LOGO IMAGE -->
+                <img src="./images/poppy.jpg" alt="Poppy Foods Logo" class="w-40 h-auto mb-4">
+                
+                <p class="text-gray-400 text-xs leading-relaxed mb-6">
+                    Crunchy pillows, real cocoa, no cap. Midnight munchies sorted for Karachi & Mumbai. Affordable premium that actually slaps.
+                </p>
+                <div class="flex gap-2">
+                    <span class="bg-brand-lime text-black text-[0.6rem] font-bold px-3 py-1 rounded-full">VEG</span>
+                    <span class="bg-white text-black text-[0.6rem] font-bold px-3 py-1 rounded-full">5g GRAINS</span>
+                    <span class="bg-brand-magenta text-white text-[0.6rem] font-bold px-3 py-1 rounded-full">NO CAP</span>
+                </div>
+            </div>
+
+            <!-- Shop Links -->
+            <div class="flex flex-col">
+                <h4 class="text-brand-lime font-bold text-xs uppercase tracking-widest mb-4">SHOP</h4>
+                <a href="#" class="text-gray-300 text-sm hover:text-white mb-2 transition-colors">Shop All Flavors</a>
+                <a href="#" class="text-gray-300 text-sm hover:text-white mb-2 transition-colors">Variety Pack</a>
+                <a href="#" class="text-gray-300 text-sm hover:text-white mb-2 transition-colors">Gift This</a>
+            </div>
+
+            <!-- Help Links -->
+            <div class="flex flex-col">
+                <h4 class="text-brand-lime font-bold text-xs uppercase tracking-widest mb-4">HELP</h4>
+                <a href="#" class="text-gray-300 text-sm hover:text-white mb-2 transition-colors">Story</a>
+                <a href="#" class="text-gray-300 text-sm hover:text-white mb-2 transition-colors">FAQ</a>
+                <a href="#" class="text-gray-300 text-sm hover:text-white mb-2 transition-colors">Shipping + COD</a>
+                <a href="#" class="text-gray-300 text-sm hover:text-white transition-colors">Contact</a>
+            </div>
+
+            <!-- Newsletter -->
+            <div class="flex flex-col">
+                <div class="flex items-center gap-2 mb-4">
+                    <h4 class="text-brand-lime font-bold text-xs uppercase tracking-widest">JOIN THE 2 AM CLUB ☽</h4>
+                    <span class="text-gray-500 text-xs">★</span>
+                </div>
+                <p class="text-gray-400 text-xs mb-4">
+                    Get 10% off + early drops + midnight memes. No spam, just chaos.
+                </p>
+                <div class="flex relative w-full mb-4">
+                    <input type="email" placeholder="your email, bestie →" class="w-full bg-[#1A1A24] text-white text-sm px-4 py-3 rounded-full outline-none border border-white/10 focus:border-brand-lime transition-colors">
+                    <button class="absolute right-1 top-1 bottom-1 bg-brand-lime text-black font-bold text-xs px-4 rounded-full hover:bg-white transition-colors">
+                        JOIN
+                    </button>
+                </div>
+                <!-- Social Icons placehoder -->
+                <div class="flex gap-3 mt-2">
+                    <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-black text-xs font-bold cursor-pointer hover:bg-brand-magenta hover:text-white transition-colors">IG</div>
+                    <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-black text-xs font-bold cursor-pointer hover:bg-brand-magenta hover:text-white transition-colors">TT</div>
+                    <div class="w-8 h-8 rounded-full bg-brand-magenta flex items-center justify-center text-white text-xs font-bold cursor-pointer hover:bg-white hover:text-black transition-colors">X</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="max-w-[1600px] mx-auto pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[0.55rem] text-gray-500 uppercase tracking-widest font-bold">
+            <div class="flex items-center gap-2 flex-wrap justify-center">
+                <span>© 2026 POPPY FOODS • AFFORDABLE PREMIUM • MADE FOR 2 AM SCROLLERS KARACHI + MUMBAI</span>
+                <span class="text-brand-lime">★ NO CAP FR FR ★</span>
+            </div>
+            
+            <div class="flex gap-4">
+                <a href="#" class="hover:text-white transition-colors">PRIVACY</a>
+                <a href="#" class="hover:text-white transition-colors">TERMS</a>
+                <span>SADAPAY • JAZZCASH • Easypaisa</span>
+            </div>
+        </div>
+        
+        <!-- Crafted With Row -->
+        <div class="max-w-[1600px] mx-auto mt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-[0.55rem] text-gray-500 uppercase tracking-widest font-bold pb-4">
+            <div class="flex items-center gap-2">
+                <span>CRAFTED WITH ⚡ BY</span>
+                <span class="bg-black text-brand-lime px-2 py-1 rounded font-black border border-white/10">CodeExix</span>
+                <span class="ml-2 lowercase">codeexis.dev</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <span>BUILT & DESIGNED BY</span>
+                <span class="bg-brand-lime text-black px-2 py-1 rounded font-black">CODEEXIS</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CART SYSTEM HTML -->
+    
+    <!-- Cart Overlay -->
+    <div id="cart-overlay" class="fixed inset-0 bg-black/60 z-[90] hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm" onclick="toggleCart()"></div>
+
+    <!-- Cart Sidebar -->
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-[#F9F9FB] z-[100] transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col shadow-[-10px_0_30px_rgba(0,0,0,0.3)]">
+        
+        <!-- Header -->
+        <div class="px-6 py-5 flex justify-between items-center border-b-2 border-gray-200/60 bg-white">
+            <h2 class="text-xl font-black uppercase tracking-tighter text-black" id="cart-title">YOUR CHAOS CART (0)</h2>
+            <button onclick="toggleCart()" class="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center font-bold hover:bg-brand-magenta transition-colors shadow-sm">✕</button>
+        </div>
+        
+        <!-- Scrollable Items Area -->
+        <div class="flex-grow overflow-y-auto p-5 flex flex-col gap-3" id="cart-items">
+            <!-- Dynamic items go here -->
+        </div>
+        
+        <!-- Footer -->
+        <div class="border-t-2 border-gray-200/60 p-6 bg-white shrink-0 shadow-[0_-5px_15px_rgba(0,0,0,0.03)]">
+            <div class="flex justify-between items-end font-black text-black mb-4 uppercase">
+                <span class="text-sm">SUBTOTAL</span>
+                <span class="text-xl leading-none" id="cart-subtotal">PKR 0</span>
+            </div>
+            
+            <button class="w-full bg-black text-brand-lime font-black uppercase py-4 rounded-[1.5rem] tracking-wider hover:bg-gray-900 transition-colors shadow-[0_5px_15px_rgba(0,0,0,0.2)] active:translate-y-1 active:shadow-none text-[0.95rem]" onclick="window.location.href='./poppy_checkout_page.html'">
+                1-CLICK CHECKOUT → BOOM
+            </button>
+            
+            <div class="text-center text-[0.55rem] font-bold text-gray-500 uppercase tracking-[0.15em] mt-5">
+                COD • PREPAID • SADA PAY • JAZZCASH • Easypaisa
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- NAVBAR SCROLL LOGIC ---
+        let lastScroll = 0;
+        const nav = document.getElementById('main-nav');
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            // If scrolled down past 50px, hide navbar
+            if (currentScroll > lastScroll && currentScroll > 50) {
+                nav.style.transform = 'translateY(-100%)';
+            } else {
+                // If scrolling up, show navbar
+                nav.style.transform = 'translateY(0)';
+            }
+            lastScroll = currentScroll;
+        });
+
+        // --- FLIP CARD MOBILE LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const flipCards = document.querySelectorAll('.flip-card-container');
+            flipCards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // Prevent flipping if they clicked inside the back face (like the add button)
+                    if(!e.target.closest('button')) {
+                         this.classList.toggle('is-flipped');
+                    }
+                });
+            });
+        });
+    </script>
+    <script src="./cart.js"></script>
+</body>
+</html>

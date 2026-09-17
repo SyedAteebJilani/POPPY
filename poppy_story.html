@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poppy - Our Story</title>
+    <link rel="icon" type="image/jpeg" href="./images/favicon.jpg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- New Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Audiowide&family=Beau+Rivage&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['"Archivo Black"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            purple: '#2E00A6', 
+                            dark: '#08001A',
+                            lime: '#CDFF00',
+                            magenta: '#FF00FF',
+                            yellow: '#FAFF00',
+                            white: '#FFFFFF',
+                            cream: '#FDFBF7', /* Very light off-white/cream */
+                            textGray: '#D1C4E9',
+                            cardYellow: '#FFDE59',
+                            cardPink: '#FF3399',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                        'marquee': 'marquee 25s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-15px) rotate(2deg)' },
+                        },
+                        marquee: {
+                            '0%': { transform: 'translateX(0%)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Apply new display font */
+        h1, h2, h3, h4, 
+        .font-black, 
+        .nav-link, 
+        .currency-btn,
+        #cart-title {
+            font-family: 'Archivo Black', sans-serif !important;
+            font-weight: 400 !important; /* Prevent faux-bolding on Archivo Black */
+        }
+
+        body {
+            background-color: #FDFBF7;
+            color: black;
+            overflow-x: hidden;
+        }
+        
+        body.no-scroll {
+            overflow: hidden;
+        }
+
+        /* Nav styling */
+        .nav-link {
+            position: relative;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover { color: #CDFF00; }
+        .nav-link.active { color: #CDFF00; }
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #CDFF00;
+        }
+
+        /* Currency toggle */
+        .currency-toggle {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .currency-btn {
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        .currency-btn.active {
+            background-color: #CDFF00;
+            color: black;
+        }
+
+        /* Diagonal lines pattern for Manifesto Section */
+        .bg-diagonal-stripes {
+            background-image: repeating-linear-gradient(
+                -45deg,
+                rgba(255, 255, 255, 0.05),
+                rgba(255, 255, 255, 0.05) 3px,
+                transparent 3px,
+                transparent 15px
+            );
+        }
+
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #FDFBF7; }
+        ::-webkit-scrollbar-thumb { background: #2E00A6; border-radius: 5px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative font-sans">
+    
+    <header id="main-nav" class="w-full py-4 px-6 md:px-12 flex justify-between items-center z-50 fixed top-0 left-0 right-0 transition-transform duration-300 bg-brand-purple border-b border-white/10 shadow-md">
+        <div class="flex items-center gap-12">
+            <!-- POPPY LOGO IMAGE -->
+           <a href="./index.html"> <img src="./images/poppy.jpg" alt="Poppy Logo" class="w-24 h-auto object-contain cursor-pointer"></a>
+            
+            <nav class="hidden md:flex gap-8">
+                    <!-- Overlay Text -->
+                    <div class="absolute bottom-6 left-6 z-10 text-white">
+                        <span class="text-brand-lime text-[0.65rem] font-black uppercase tracking-widest drop-shadow-md mb-1 block">@NIGHTOWL_CODER • 3:24 AM</span>
+                        <h3 class="text-2xl font-black uppercase drop-shadow-md">MY DESK ESSENTIAL FR</h3>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
+                </div>
+
+                <!-- Right Side Column content -->
+                <div class="lg:col-span-7 flex flex-col gap-6">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
+                        <!-- Live Now Stats Card -->
+                        <div class="bg-brand-purple rounded-[2rem] p-8 border-[3px] border-black shadow-[6px_6px_0_0_#000] flex flex-col relative h-[300px]">
+                            <span class="text-[0.65rem] font-black text-brand-lime uppercase tracking-widest mb-auto flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-brand-magenta animate-pulse"></span> LIVE NOW
+                            </span>
+                            <div>
+                                <h3 class="text-5xl md:text-6xl font-black text-brand-lime mb-2 tracking-tighter">2.4K</h3>
+                                <p class="text-white text-sm font-bold opacity-80">people scrolling Poppy rn. No cap.</p>
+                            </div>
+                            <!-- Fake progress bars at bottom -->
+                            <div class="flex gap-2 mt-8">
+                                <div class="h-2 w-1/4 bg-brand-lime rounded-full"></div>
+                                <div class="h-2 w-1/4 bg-white/20 rounded-full"></div>
+                                <div class="h-2 w-1/4 bg-white/20 rounded-full"></div>
+                                <div class="h-2 w-1/4 bg-white/20 rounded-full"></div>
+                            </div>
+                        </div>
+
+                        <!-- Limited Sticker Drop Card -->
+                        <div class="bg-brand-cardYellow rounded-[2rem] border-[3px] border-black shadow-[6px_6px_0_0_#000] overflow-hidden relative h-[300px] flex items-center justify-center p-4">
+                            <div class="absolute top-4 left-4 z-10 bg-black text-white text-[0.55rem] font-black px-3 py-1.5 rounded-full uppercase border border-black shadow-sm">
+                            </div>
+                            <img src="./images/poppy.jpg" alt="Limited Stickers" class="w-full h-full object-contain animate-float-delayed drop-shadow-xl">
+                        </div>
+                    </div>
+
+                    <!-- Reviews Verification Banner -->
+                    <div class="bg-white rounded-[2rem] p-6 border-[3px] border-black shadow-[6px_6px_0_0_#000] flex items-center gap-6">
+                        <div class="w-12 h-12 rounded-full bg-brand-lime flex items-center justify-center border-2 border-black shrink-0 shadow-sm text-xl">
+                            ✓
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-xl font-black uppercase tracking-tight text-black mb-1">NO FAKE REVIEWS. JUST RECEIPTS.</h3>
+                            <p class="text-gray-500 text-[0.7rem] font-bold uppercase tracking-wide">
+                                Every review is from a verified 2 AM order. We check timestamps.
+                            </p>
+                        </div>
+                        <div class="hidden md:block">
+                            <span class="bg-black text-white px-4 py-2 rounded-full text-[0.65rem] font-black uppercase">VERIFIED</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <section class="w-full bg-brand-lime py-16 px-6 md:px-12 border-t-[4px] border-black flex flex-col md:flex-row items-center justify-between gap-8">
+            <h2 class="text-5xl md:text-[5.5rem] font-black uppercase tracking-tighter text-brand-purple leading-[0.85] drop-shadow-sm">
+                HUNGRY AT 2 AM?<br>
+                <span class="text-black">WE GOT YOU.</span>
+            </h2>
+            <button class="bg-black text-brand-lime font-black uppercase tracking-widest px-8 py-5 rounded-full border-2 border-transparent hover:bg-brand-purple hover:text-white hover:border-black hover:scale-105 active:scale-95 transition-all shadow-[6px_6px_0_0_#000] text-lg flex items-center gap-3 shrink-0" onclick="window.location.href='./poppy_shop.html'">
+                SHOP THE CHAOS <span class="bg-brand-lime text-black w-6 h-6 flex items-center justify-center rounded-full text-xs">→</span>
+            </button>
+        </section>
+
+    </main>
+
+    <footer class="bg-brand-dark w-full pt-16 pb-6 px-6 md:px-12 text-white border-t border-white/5">
+        <div class="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+            
+            <!-- Brand Col -->
+            <div class="flex flex-col items-start">
+                <img src="https://placehold.co/180x50/08001A/FFF?text=POPPY+FOODS+LOGO" alt="Poppy Foods Logo" class="w-40 h-auto mb-4">
+                
+                <p class="text-gray-400 text-xs leading-relaxed mb-6 font-medium">
+                    Loud snacks for late nights, tight deadlines, and endless scrolls. No wellness, just craving fixed.
+                </p>
+                <div class="flex gap-2">
+                    <span class="bg-brand-lime text-black text-[0.6rem] font-bold px-3 py-1 rounded-full">VEG</span>
+                    <span class="bg-white text-black text-[0.6rem] font-bold px-3 py-1 rounded-full">5g GRAINS</span>
+                    <span class="bg-brand-magenta text-white text-[0.6rem] font-bold px-3 py-1 rounded-full">NO CAP</span>
+                </div>
+            </div>
+
+            <!-- Shop Links -->
+            <div class="flex flex-col">
+                <h4 class="text-brand-lime font-bold text-[0.65rem] uppercase tracking-widest mb-4">SHOP</h4>
+                <a href="./poppy_shop.html" class="text-gray-300 text-xs hover:text-white mb-3 transition-colors font-medium">All Products</a>
+                <a href="#" class="text-gray-300 text-xs hover:text-white mb-3 transition-colors font-medium">Best Sellers</a>
+
+            </div>
+
+            <!-- Help Links -->
+            <div class="flex flex-col">
+                <h4 class="text-brand-lime font-bold text-[0.65rem] uppercase tracking-widest mb-4">HELP</h4>
+                <a href="#" class="text-gray-300 text-xs hover:text-white mb-3 transition-colors font-medium">Our Story</a>
+                <a href="#" class="text-gray-300 text-xs hover:text-white mb-3 transition-colors font-medium">Shipping</a>
+                <a href="#" class="text-gray-300 text-xs hover:text-white mb-3 transition-colors font-medium">FAQ</a>
+                <a href="#" class="text-gray-300 text-xs hover:text-white transition-colors font-medium">Contact</a>
+            </div>
+
+            <!-- Newsletter -->
+            <div class="flex flex-col">
+                <div class="flex items-center gap-2 mb-4">
+                    <h4 class="text-brand-lime font-bold text-[0.65rem] uppercase tracking-widest">JOIN 2 AM CLUB ☽</h4>
+                </div>
+                <p class="text-gray-400 text-[0.65rem] mb-4">
+                    Get first dibs on drops, secret flavors, and 2 AM memes.
+                </p>
+                <div class="flex relative w-full mb-4">
+                    <input type="email" placeholder="your email, bestie →" class="w-full bg-[#1A1A24] text-white text-xs px-4 py-3 rounded-full outline-none border border-white/10 focus:border-brand-lime transition-colors">
+                    <button class="absolute right-1 top-1 bottom-1 bg-brand-lime text-black font-bold text-[0.65rem] px-5 rounded-full hover:bg-white transition-colors uppercase">
+                        JOIN
+                    </button>
+                </div>
+                <div class="flex gap-3 mt-2">
+                    <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center text-black text-[0.55rem] font-bold cursor-pointer hover:bg-brand-lime transition-colors">IG</div>
+                    <div class="w-7 h-7 rounded-full bg-black border border-white/20 flex items-center justify-center text-white text-[0.55rem] font-bold cursor-pointer hover:bg-brand-lime hover:border-brand-lime hover:text-black transition-colors">TT</div>
+                    <div class="w-7 h-7 rounded-full bg-brand-magenta flex items-center justify-center text-white text-[0.55rem] font-bold cursor-pointer hover:bg-white hover:text-black transition-colors">X</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="max-w-[1600px] mx-auto pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[0.5rem] text-gray-500 uppercase tracking-widest font-bold">
+            <div class="flex items-center gap-2 flex-wrap justify-center">
+                <span>© 2026 POPPY FOODS • AFFORDABLE PREMIUM • MADE FOR 2 AM SCROLLERS KARACHI + MUMBAI</span>
+                <span class="text-brand-lime">★ NO CAP FD FD ★</span>
+            </div>
+            
+            <div class="flex gap-4">
+                <a href="#" class="hover:text-white transition-colors">PRIVACY</a>
+                <a href="#" class="hover:text-white transition-colors">TERMS</a>
+                <span>SADAPAY • JAZZCASH • UPI</span>
+            </div>
+        </div>
+        
+        <div class="max-w-[1600px] mx-auto mt-4 flex flex-col md:flex-row justify-between items-center gap-4 text-[0.5rem] text-gray-500 uppercase tracking-widest font-bold pb-2">
+            <div class="flex items-center gap-2">
+                <span>CRAFTED WITH ⚡ BY</span>
+                <span class="text-white border border-white/20 px-2 py-0.5 rounded font-black">CodeEnix</span>
+                <span class="ml-2 lowercase font-medium">codeenix.dev</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <span>BUILT & DESIGNED BY</span>
+                <span class="bg-brand-lime text-black px-2 py-0.5 rounded font-black">CODEENIX</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Overlay -->
+    <div id="cart-overlay" class="fixed inset-0 bg-black/60 z-[90] hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm" onclick="toggleCart()"></div>
+
+    <!-- Cart Sidebar -->
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-[#F9F9FB] z-[100] transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col shadow-[-10px_0_30px_rgba(0,0,0,0.3)]">
+        
+        <div class="px-6 py-5 flex justify-between items-center border-b-2 border-gray-200/60 bg-white">
+            <h2 class="text-xl font-black uppercase tracking-tighter text-black" id="cart-title">YOUR CHAOS CART (0)</h2>
+            <button onclick="toggleCart()" class="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center font-bold hover:bg-brand-magenta transition-colors shadow-sm">✕</button>
+        </div>
+        
+        <div class="flex-grow overflow-y-auto p-5 flex flex-col gap-3" id="cart-items">
+            <!-- Dynamic items go here -->
+        </div>
+        
+        <div class="border-t-2 border-gray-200/60 p-6 bg-white shrink-0 shadow-[0_-5px_15px_rgba(0,0,0,0.03)]">
+            <div class="flex justify-between items-end font-black text-black mb-4 uppercase">
+                <span class="text-sm">SUBTOTAL</span>
+                <span class="text-xl leading-none" id="cart-subtotal">PKR 0</span>
+            </div>
+            
+            <button class="w-full bg-black text-brand-lime font-black uppercase py-4 rounded-[1.5rem] tracking-wider hover:bg-gray-900 transition-colors shadow-[0_5px_15px_rgba(0,0,0,0.2)] active:translate-y-1 active:shadow-none text-[0.95rem]" onclick="window.location.href='./poppy_checkout_page.html'">
+                1-CLICK CHECKOUT → BOOM
+            </button>
+            
+            <div class="text-center text-[0.55rem] font-bold text-gray-500 uppercase tracking-[0.15em] mt-5">
+                COD • PREPAID • SADA PAY • JAZZCASH • UPI • PAYTM
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navbar Smart Scroll Logic
+        let lastScroll = 0;
+        const nav = document.getElementById('main-nav');
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            if (currentScroll > lastScroll && currentScroll > 50) {
+                nav.style.transform = 'translateY(-100%)';
+            } else {
+                nav.style.transform = 'translateY(0)';
+            }
+            lastScroll = currentScroll;
+        });
+    </script>
+    <script src="./cart.js"></script>
+</body>
+</html>

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poppy - Secure Checkout</title>
+    <link rel="icon" type="image/jpeg" href="./images/favicon.jpg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Poppy Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Audiowide&family=Beau+Rivage&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['"Archivo Black"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            purple: '#2E00A6', 
+                            dark: '#08001A',
+                            lime: '#CDFF00',
+                            magenta: '#FF00FF',
+                            yellow: '#FAFF00',
+                            white: '#FFFFFF',
+                            textGray: '#D1C4E9',
+                        }
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #2E00A6; /* Signature Poppy Blue/Purple */
+            color: black;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, .font-display, .price-display, .btn-text {
+            font-family: 'Archivo Black', sans-serif !important;
+            font-weight: 400 !important;
+        }
+
+        /* Custom Input Styling */
+        .poppy-input {
+            width: 100%;
+            background-color: #F9F9F9;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .poppy-input:focus {
+            border-color: #08001A;
+            background-color: #FFFFFF;
+            box-shadow: 4px 4px 0 0 #CDFF00;
+        }
+
+        /* Custom Radio Button */
+        .custom-radio {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #08001A;
+            border-radius: 50%;
+            background-color: white;
+            position: relative;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .custom-radio:checked {
+            background-color: #CDFF00;
+            box-shadow: inset 0 0 0 4px white;
+        }
+
+        /* Custom Checkbox */
+        .custom-checkbox {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #08001A;
+            border-radius: 6px;
+            background-color: white;
+            position: relative;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .custom-checkbox:checked {
+            background-color: #CDFF00;
+        }
+        .custom-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+            font-weight: 900;
+            color: black;
+        }
+
+        /* Neobrutalist Cards */
+        .poppy-card {
+            background-color: #FFFFFF;
+            border: 3px solid #08001A;
+            border-radius: 24px;
+            box-shadow: 8px 8px 0 0 #08001A;
+        }
+        
+        /* Dark Theme Card for Order Summary */
+        .poppy-card-dark {
+            background-color: #08001A;
+            border: 3px solid #CDFF00;
+            border-radius: 24px;
+            box-shadow: 8px 8px 0 0 #000000;
+            color: white;
+        }
+
+        /* File Upload Styling */
+        input[type="file"]::file-selector-button {
+            border: 2px solid black;
+            padding: 8px 16px;
+            border-radius: 999px;
+            background-color: #CDFF00;
+            font-weight: 900;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-right: 12px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+        input[type="file"]::file-selector-button:hover {
+            background-color: white;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-20 overflow-x-hidden">
+
+    <header class="w-full py-6 px-4 md:px-12 flex justify-center relative">
+        <!-- Logo Image -->
+        <a href="index.html" class="inline-block hover:scale-105 transition-transform">
+            <img src="./images/poppy.jpg" alt="Poppy Logo" class="h-10 object-contain mix-blend-screen">
+        </a>
+        
+        <!-- Secure Checkout Badge -->
+        <div class="absolute right-4 md:right-12 top-6 bg-white text-black px-4 py-2 rounded-full border-2 border-black flex items-center gap-2 shadow-[3px_3px_0_0_#000]">
+            <span class="text-xl leading-none">🔒</span>
+            <span class="font-display text-[0.65rem] tracking-widest mt-0.5 hidden sm:block">SECURE<br>CHECKOUT</span>
+        </div>
+    </header>
+
+    <main class="max-w-[1200px] mx-auto px-4 md:px-8 mt-8">
+        <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
+            
+            <!-- LEFT COLUMN: Forms -->
+            <div class="w-full lg:w-3/5 flex flex-col gap-8">
+                
+                <!-- Contact & Shipping Section -->
+                <div class="poppy-card p-6 md:p-8">
+                    <h2 class="font-display text-xl uppercase tracking-tighter mb-6 flex items-center gap-2">
+                        Contact & Shipping <span class="text-sm font-sans font-bold text-gray-500 normal-case tracking-normal">— bare minimum 💌</span>
+                    </h2>
+
+                    <div class="flex flex-col gap-4">
+                        <!-- Email (New Field) -->
+                        <div>
+                            <input type="email" placeholder="Email Address" class="poppy-input" id="email" required>
+                        </div>
+                        
+                        <!-- Full Name -->
+                        <div>
+                            <input type="text" placeholder="Full Name" class="poppy-input" id="fullName" required>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="flex gap-2">
+                            <div class="w-24 shrink-0 bg-[#F9F9F9] border-2 border-[#E5E7EB] rounded-xl flex items-center justify-center font-bold text-sm">
+                                PK +92
+                            </div>
+                            <input type="tel" placeholder="Phone Number" class="poppy-input flex-grow" id="phone" required>
+                        </div>
+                        
+                        <!-- Address -->
+                        <div class="relative">
+                            <span class="absolute -top-3 left-4 bg-black text-white text-[0.55rem] font-display px-2 py-1 rounded uppercase tracking-widest z-10">
+                                REQUIRED FOR COD VERIFICATION
+                            </span>
+                            <textarea placeholder="Complete Address (house, street, area)" class="poppy-input resize-none h-24 pt-4" id="address" required></textarea>
+                        </div>
+
+                        <!-- City & Zip -->
+                        <div class="flex gap-4">
+                            <input type="text" placeholder="City" class="poppy-input w-1/2" id="city" required>
+                            <input type="text" placeholder="Zip Code" class="poppy-input w-1/2" id="zip">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Section -->
+                <div class="poppy-card p-6 md:p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="font-display text-xl uppercase tracking-tighter">Payment <span class="font-sans font-bold text-gray-500 normal-case tracking-normal text-sm">— choose your chaos</span></h2>
+                        <span class="bg-brand-purple text-white text-[0.65rem] font-display px-3 py-1.5 rounded-full uppercase tracking-widest hidden sm:block">PREPAID PUSH ⚡</span>
+                    </div>
+
+                    <div class="flex flex-col gap-4">
+                        
+                        <!-- Prepaid Option (Default Selected) -->
+                        <label class="w-full border-[3px] border-black rounded-2xl p-5 cursor-pointer transition-all relative" id="prepaid-label" style="background-color: #F4FFC7; border-color: #08001A;">
+                            <div class="flex items-start gap-4">
+                                <input type="radio" name="payment_method" value="prepaid" class="custom-radio mt-1" checked onchange="togglePayment()">
+                                <div class="flex-grow">
+                                    <div class="flex justify-between items-center w-full">
+                                        <span class="font-bold text-lg">Prepaid (SadaPay & Nayapay / JazzCash / EasyPaisa)</span>
+                                        <span class="text-xl">✔️</span>
+                                    </div>
+                                    <div class="bg-brand-lime text-black inline-block text-[0.65rem] font-display px-2 py-1 rounded-sm uppercase tracking-widest mt-1 mb-2 shadow-[2px_2px_0_0_#000] border border-black">
+                                        ⚡ GET 10% OFF INSTANTLY ⚡
+                                    </div>
+                                    <p class="text-sm text-gray-700 font-medium leading-relaxed">
+                                        Wallets, instant confirmation — midnight club preferred. Price drops instantly.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Expanded Bank Details & Upload (Only visible when Prepaid is selected) -->
+                            <div id="prepaid-details" class="mt-6 pt-5 border-t-2 border-black/10 flex flex-col gap-4">
+                                <p class="text-xs font-bold uppercase tracking-widest text-brand-purple">Send payment to any account below:</p>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div class="bg-white border-2 border-black rounded-xl p-3 shadow-sm flex justify-between items-center">
+                                        <div>
+                                            <p class="text-[0.65rem] font-bold text-gray-500 uppercase">SadaPay / Nayapay</p>
+                                            <p class="font-display text-sm">0300 1234567</p>
+                                        </div>
+                                        <button type="button" class="text-[0.6rem] bg-gray-100 hover:bg-brand-lime px-2 py-1 rounded font-bold border border-black" onclick="copyText('03001234567')">COPY</button>
+                                    </div>
+                                    <div class="bg-white border-2 border-black rounded-xl p-3 shadow-sm flex justify-between items-center">
+                                        <div>
+                                            <p class="text-[0.65rem] font-bold text-gray-500 uppercase">JazzCash / EasyPaisa</p>
+                                            <p class="font-display text-sm">0300 1234567</p>
+                                        </div>
+                                        <button type="button" class="text-[0.6rem] bg-gray-100 hover:bg-brand-lime px-2 py-1 rounded font-bold border border-black" onclick="copyText('03001234567')">COPY</button>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white border-2 border-black rounded-xl p-4 mt-2 border-dashed">
+                                    <p class="text-[0.7rem] font-bold uppercase tracking-widest text-black mb-3">Upload Receipt / Screenshot (Required)</p>
+                                    <input type="file" id="receipt" accept="image/*" class="w-full text-sm text-gray-600 font-medium">
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Instant Discount Alert (Dynamic) -->
+                        <div id="discount-alert" class="bg-brand-yellow border-[3px] border-black rounded-2xl p-4 flex items-center gap-3 shadow-[4px_4px_0_0_#000] transform transition-all duration-300">
+                            <span class="text-xl">⚡</span>
+                            <p class="font-bold text-sm">
+                                You just unlocked instant 10% OFF — that's <span class="font-black">PKR <span id="discount-amount-text">300</span></span> staying in your pocket for extra snacks.
+                            </p>
+                        </div>
+
+                        <!-- COD Option -->
+                        <label class="w-full border-2 border-gray-200 rounded-2xl p-5 cursor-pointer transition-all hover:border-black" id="cod-label">
+                            <div class="flex items-start gap-4">
+                                <input type="radio" name="payment_method" value="cod" class="custom-radio mt-1" onchange="togglePayment()">
+                                <div>
+                                    <span class="font-bold text-lg">Cash on Delivery 🛵 Pay full price at your doorstep.</span>
+                                    <p class="text-sm text-gray-500 font-medium mt-1">
+                                        Pay when it lands. Full price, no discount.
+                                    </p>
+                                </div>
+                            </div>
+                        </label>
+
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="button" class="w-full bg-brand-lime text-black border-4 border-black rounded-full py-5 text-xl font-display uppercase tracking-wider shadow-[6px_6px_0_0_#000] hover:translate-y-1 hover:shadow-[2px_2px_0_0_#000] active:translate-y-2 active:shadow-none transition-all flex items-center justify-center gap-2 group">
+                    SECURE THE CHAOS → <span class="group-hover:animate-pulse-fast text-brand-magenta">⚡</span>
+                </button>
+
+                <!-- Trust Badges -->
+                <div class="flex justify-center gap-6 text-[0.65rem] font-bold text-white/70 uppercase tracking-widest">
+                    <span>🔒 256-bit Encryption</span>
+                    <span>⚡ Fast Shipping</span>
+                    <span>💞 Midnight Satisfaction</span>
+                </div>
+                <p class="text-center text-[0.6rem] text-white/50 -mt-4">By placing order, you agree to 2AM Club chaos • No spam, only snacks</p>
+
+            </div>
+
+            <!-- RIGHT COLUMN: Order Summary -->
+            <div class="w-full lg:w-2/5">
+                <div class="poppy-card-dark p-6 md:p-8 sticky top-8">
+                    
+                    <div class="flex justify-between items-end mb-6 border-b-2 border-white/10 pb-4">
+                        <h2 class="font-display text-xl uppercase tracking-tighter text-brand-lime">YOUR MIDNIGHT KIT</h2>
+                        <span id="checkout-item-count" class="bg-white text-black text-[0.55rem] font-display px-2 py-1 rounded-full uppercase tracking-widest">1 ITEM • 2AM CLUB</span>
+                    </div>
+
+                    <!-- Cart Item -->
+                    <div id="checkout-items-container">
+                        <!-- Dynamic content here -->
+                    </div>
+
+                    <!-- Holo Sticker Add-on -->
+                    <label class="w-full bg-[#15004D] border-2 border-brand-lime/30 hover:border-brand-lime rounded-xl p-4 flex items-center gap-4 cursor-pointer transition-colors mb-8">
+                        <input type="checkbox" id="sticker-addon" class="custom-checkbox shrink-0" onchange="calculateTotals()">
+                        <div class="flex-grow">
+                            <span class="font-bold text-sm block">Add extra Holo Sticker Pack</span>
+                            <span class="text-[0.65rem] text-gray-400">6 iridescent stickers • 2AM exclusive</span>
+                        </div>
+                        <span class="font-display text-sm text-brand-lime">+PKR 300</span>
+                    </label>
+
+                    <!-- Totals Block -->
+                    <div class="bg-brand-lime text-black rounded-[1rem] p-5 border-2 border-black shadow-[4px_4px_0_0_#000]">
+                        <div class="flex justify-between items-center mb-3 text-sm font-bold">
+                            <span>Subtotal</span>
+                            <span id="summary-subtotal" class="price-display">PKR 3,000</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-3 text-sm font-bold text-gray-600">
+                            <span>Shipping</span>
+                            <span class="text-brand-purple font-black uppercase">FREE ⚡</span>
+                        </div>
+                        
+                        <!-- Dynamic Discount Row -->
+                        <div id="summary-discount-row" class="flex justify-between items-center mb-4 text-sm font-bold text-brand-purple">
+                            <span>Discount • 10% OFF ⚡</span>
+                            <span id="summary-discount" class="price-display">-PKR 300</span>
+                        </div>
+
+                        <div class="border-t-2 border-black/10 pt-4 flex justify-between items-end">
+                            <div>
+                                <span class="block text-[0.65rem] font-display uppercase tracking-widest text-gray-500 mb-1">TOTAL DUE</span>
+                                <span id="summary-saved" class="text-[0.65rem] font-bold text-brand-purple bg-white px-2 py-0.5 rounded-full border border-black shadow-sm">
+                                    You saved PKR 300 ✨
+                                </span>
+                            </div>
+                            <span id="summary-total" class="font-display text-3xl leading-none">PKR 2,700</span>
+                        </div>
+                        
+                        <!-- Dynamic Banner -->
+                        <div id="summary-banner" class="w-full bg-brand-purple text-brand-lime text-[0.6rem] font-display uppercase tracking-widest text-center py-2 rounded-full border border-black mt-4 shadow-sm">
+                            ✦ PRICE DROPPED • LIME FLASH ACTIVE ✦
+                        </div>
+                    </div>
+
+                    <div class="text-center text-[0.65rem] text-gray-400 font-bold mt-6 flex justify-center items-center gap-1">
+                        <span class="text-brand-lime">✓</span> 2AM Club: 12,847 midnight snackers already secured
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Copy to clipboard helper
+        function copyText(text) {
+            // Simplified copy command that works in standard environments
+            const tempInput = document.createElement("input");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            
+            // Visual feedback could be added here (e.g. changing button text temporarily)
+        }
+
+        // Checkout Logic State
+        const STICKER_PRICE = 300;
+        let cart = JSON.parse(localStorage.getItem('poppy_cart')) || [];
+        
+        function renderCheckoutItems() {
+            const container = document.getElementById('checkout-items-container');
+            if (!container) return;
+            
+            let totalQty = 0;
+            let subtotal = 0;
+            
+            let html = '';
+            
+            cart.forEach(item => {
+                totalQty += item.qty;
+                subtotal += (item.price * item.qty);
+                
+                html += `
+                    <div class="flex gap-4 items-start mb-6">
+                        <div class="w-20 h-20 bg-white rounded-xl border-2 border-white/20 shrink-0 flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute -top-2 -right-2 bg-black text-white w-6 h-6 rounded-full flex items-center justify-center text-[0.6rem] font-bold border border-white z-10">${item.qty}</div>
+                            <div class="w-full h-full flex items-center justify-center bg-brand-purple text-brand-lime font-black text-2xl">${item.iconText}</div>
+                        </div>
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-bold text-base leading-tight">${item.title}</h3>
+                                <div class="text-right">
+                                    <span class="font-display text-sm price-display text-brand-lime">PKR ${(item.price * item.qty).toLocaleString()}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            document.getElementById('checkout-item-count').innerText = `${totalQty} ITEM${totalQty !== 1 ? 'S' : ''} • 2AM CLUB`;
+            return subtotal;
+        }
+
+        let baseSubtotal = 0;
+
+        function togglePayment() {
+            const isPrepaid = document.querySelector('input[name="payment_method"]:checked').value === 'prepaid';
+            
+            const prepaidDetails = document.getElementById('prepaid-details');
+            const prepaidLabel = document.getElementById('prepaid-label');
+            const codLabel = document.getElementById('cod-label');
+            const discountAlert = document.getElementById('discount-alert');
+            const discountRow = document.getElementById('summary-discount-row');
+            const savedBadge = document.getElementById('summary-saved');
+            const summaryBanner = document.getElementById('summary-banner');
+            
+            if (isPrepaid) {
+                // UI changes for Prepaid
+                prepaidDetails.classList.remove('hidden');
+                discountAlert.classList.remove('hidden');
+                discountRow.classList.remove('hidden');
+                
+                prepaidLabel.style.backgroundColor = '#F4FFC7';
+                prepaidLabel.style.borderColor = '#08001A';
+                prepaidLabel.style.borderWidth = '3px';
+                
+                codLabel.style.backgroundColor = 'transparent';
+                codLabel.style.borderColor = '#E5E7EB';
+                codLabel.style.borderWidth = '2px';
+                
+                savedBadge.classList.remove('hidden');
+                summaryBanner.innerText = '✦ PRICE DROPPED • LIME FLASH ACTIVE ✦';
+                summaryBanner.className = 'w-full bg-brand-purple text-brand-lime text-[0.6rem] font-display uppercase tracking-widest text-center py-2 rounded-full border border-black mt-4 shadow-sm';
+            } else {
+                // UI changes for COD
+                prepaidDetails.classList.add('hidden');
+                discountAlert.classList.add('hidden');
+                discountRow.classList.add('hidden');
+                
+                codLabel.style.backgroundColor = '#F9FAFB';
+                codLabel.style.borderColor = '#08001A';
+                codLabel.style.borderWidth = '3px';
+                
+                prepaidLabel.style.backgroundColor = 'transparent';
+                prepaidLabel.style.borderColor = '#E5E7EB';
+                prepaidLabel.style.borderWidth = '2px';
+                
+                savedBadge.classList.add('hidden');
+                summaryBanner.innerText = '✦ COD SELECTED • PAY AT DOORSTEP ✦';
+                summaryBanner.className = 'w-full bg-black text-white text-[0.6rem] font-display uppercase tracking-widest text-center py-2 rounded-full border border-black mt-4 shadow-sm';
+            }
+            
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            const hasStickers = document.getElementById('sticker-addon').checked;
+            const isPrepaid = document.querySelector('input[name="payment_method"]:checked').value === 'prepaid';
+            
+            let subtotal = baseSubtotal;
+            if (hasStickers) {
+                subtotal += STICKER_PRICE;
+            }
+            
+            let discount = 0;
+            if (isPrepaid) {
+                discount = subtotal * 0.10; // 10% discount
+            }
+            
+            let total = subtotal - discount;
+            
+            // Format numbers to look like strings with commas
+            const fmt = (num) => num.toLocaleString('en-US');
+            
+            // Update DOM
+            document.getElementById('summary-subtotal').innerText = `PKR ${fmt(subtotal)}`;
+            
+            if (isPrepaid) {
+                document.getElementById('discount-amount-text').innerText = fmt(discount);
+                document.getElementById('summary-discount').innerText = `-PKR ${fmt(discount)}`;
+                document.getElementById('summary-saved').innerHTML = `You saved PKR ${fmt(discount)} ✨`;
+            }
+            
+            document.getElementById('summary-total').innerText = `PKR ${fmt(total)}`;
+        }
+
+        // Initialize state on load
+        window.addEventListener('DOMContentLoaded', () => {
+            baseSubtotal = renderCheckoutItems();
+            togglePayment();
+        });
+    </script>
+</body>
+</html>
